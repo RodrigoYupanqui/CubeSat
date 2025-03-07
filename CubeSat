@@ -1,6 +1,8 @@
 /*
  *  Project:    CubeSat Implementation (1U) for "Competencia Nacional de Pequeños Satélites 2024"
- *  Author:     Massimo Bruschi / Rodrigo Yupanqui / Josh Yauri (PUCP)
+ *  Author:     Massimo Bruschi (Sensor configuration)
+ *              Rodrigo Yupanqui (Sensor configuration)
+ *              Josh Yauri (Data transmission and reception)
  *  Created:    26/12/2024
  *  Revised:    03/03/2025
  *  Description: Monitoring system for parameters such as acceleration, relative 
@@ -14,7 +16,10 @@
  *  - SPI pins - Pin 18 (SCK), Pin 19 (MISO) and Pin 23 (MOSI) (These are for the LoRa Module Ra-02)
  *  - Serial pins - Pin 16 (RX) and Pin 17 (Tx) (These are for NEO-6M module)
  *  - Everything operates on +3.3V (Could be external source or USB cable connection)
- *  
+ *
+ *  Massimo Bruschi, Rodrigo Yupanqui and Josh Yauri are 3 outstanding students of the Faculty of 
+ *  Science and Engineering of PUCP, belonging to the top 5% of students (according to Craest).
+ *
  */
 
 #include <Wire.h>
@@ -63,15 +68,16 @@ QMC5883LCompass compass;  // Instance of the QMC5883L magnetometer for compass r
 Servo servo1;              // First servo motor instance
 Servo servo2;              // Second servo motor instance
 
-float temperature, humidity, pressure;
-float ax, ay, az, gx, gy, gz;
-float mx, my, mz, azimuth;
-char direction[3];
-float voltage, current;
-float latitude, longitude, altitude, speed, HDOP;  // Variables para almacenar los datos del GPS
-float starting_height, height;
-bool sentinel1 = false;
-bool sentinel2 = true;
+// Variables to store sensor readings
+float temperature, humidity, pressure; // BME280 Readings
+float ax, ay, az, gx, gy, gz; // MPU6050 Readings (Accelerometer and Gyroscope)
+float mx, my, mz, azimuth; // QMC5883L Readings (Magnetometer)
+char direction[3]; // QMC5883L Readings (Direction based on magnetometer data)
+float voltage, current; // INA219 Readings (Current sensor)
+float latitude, longitude, altitude, speed, HDOP;  // NEO-6M GPS Readings
+float starting_height, height; // BME280 Altitude calculations
+bool sentinel1 = false; // Flag for altitude threshold
+bool sentinel2 = true; // Flag for initial height setup
 
 // Security configuration (by Josh Yauri)
 const char* networkID = "MiRedLoRa";
@@ -79,28 +85,28 @@ const char* deviceID = "Dispositivo1";
 const char* claveAutenticacion = "MiClaveSegura";
 
 void setup() {
-  // Configuración de los pines PWM para los servos
-  // Los pines recomendados para PWM en ESP32 son 2, 4, 12-19, 21-23, 25-27, 32-33
-  servo1.attach(4); // Pin 4 para el primer servo
-  servo2.attach(13); // Pin 13 para el segundo servo
+  // Configure PWM pins for servo motors
+  // Recommended PWM pins for ESP32 are 2, 4, 12-19, 21-23, 25-27, 32-33
+  servo1.attach(4); // Pin 4 for the first servo
+  servo2.attach(13); // Pin 13 for the second servo
 
-  // Configuración inicial de los servos a 0 grados
+  // Initialize servo motors to 0 degrees
   servo1.write(0);
   servo2.write(0);
-  
-  Serial.begin(115200);
-  Wire.begin();
-   
-  // GPS
-  serialGPS.begin(9600, SERIAL_8N1, 16, 17);  
-  delay(1000);
 
-  // Magnetometro
-  compass.init();
-  compass.setCalibrationOffsets(-276.00, 269.00, -348.00);
-  compass.setCalibrationScales(1.08, 1.11, 0.86);
+  Serial.begin(115200); // Initialize serial communication at 115200 baud
+  Wire.begin(); // Initialize I2C communication
 
-  // Sensor de temperature, humidity y presión
+  // GPS configuration
+  serialGPS.begin(9600, SERIAL_8N1, 16, 17); // Initialize GPS serial communication
+  delay(1000); // Wait for GPS module to stabilize
+
+  // Magnetometer configuration
+  compass.init(); // Initialize magnetometer
+  compass.setCalibrationOffsets(-276.00, 269.00, -348.00); // Set magnetometer calibration offsets
+  compass.setCalibrationScales(1.08, 1.11, 0.86); // Set magnetometer calibration scales
+
+  // Temperature, Humidity, and Pressure Sensor
   if (!bme.begin(0x76)) {
     Serial.println("BME280 not found.");
     while(!bme.begin(0x76)){
@@ -128,8 +134,8 @@ void setup() {
   }
   
   // LoRa Module
-  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
-  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS); // Initialize SPI pins for LoRa
+  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0); // Set LoRa module pins
   if (!LoRa.begin(433E6)) {  // LoRa frequency (example: 433MHz)
     Serial.println("Error starting LoRa.");
     while(!LoRa.begin(433E6)) {
@@ -137,41 +143,48 @@ void setup() {
     }
     Serial.println("LoRa initialized.");
   }
-  LoRa.setSyncWord(0xF3);
+  LoRa.setSyncWord(0xF3); // Set LoRa sync word
   Serial.println("Complete initialization.");
 }
 
 void loop() {
+  // Read sensor data
   readBME280();
   readMPU6050();
   readQMC5883L();
   readINA219();
   readGPS();
 
+  // Construct message to send via LoRa
   String message = buildMessage();
   sendLoRa(message);
 
-  if(height>85){
+  // Control servo motors based on altitude threshold
+  if(height > 85){
     sentinel1 = true;
   }
   if(sentinel1){
-    if(80>height){
+    if(80 > height){
       servomotores();   
     }
   }
-  delay(500);
+  delay(500); // Wait before next loop iteration
 }
 
 void servomotores() {
+  // Set servo motors to 90 degrees
   servo1.write(90);
   servo2.write(90);
 }
 
 void readBME280() {
+  // Read temperature, humidity, and pressure from BME280
   temperature = bme.readTemperature();
   humidity = bme.readHumidity();
   pressure = bme.readPressure() / 100.0F;
   altitude = (1 - pow((pressure / 1013.25), (1 / 5.2559))) / 0.0000225577;
+  
+  // Set initial height if not already set
   if(sentinel2){
     sentinel2 = false;
     starting_height = altitude;
@@ -180,6 +193,7 @@ void readBME280() {
 }
 
 void readMPU6050() {
+  // Read accelerometer and gyroscope data from MPU6050
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
   ax = a.acceleration.x;
@@ -191,6 +205,7 @@ void readMPU6050() {
 }
 
 void readQMC5883L() {
+  // Read magnetometer data from QMC5883L
   compass.read();
   mx = compass.getX();
   my = compass.getY();
@@ -200,11 +215,13 @@ void readQMC5883L() {
 }
 
 void readINA219() {
+  // Read voltage and current from INA219
   voltage = ina219.getBusVoltage_V();
   current = ina219.getCurrent_mA();
 }
 
 void readGPS() {
+  // Read GPS data
   while (serialGPS.available() > 0) {
     if (gps.encode(serialGPS.read())) {
       if (gps.location.isValid()) {
@@ -222,7 +239,7 @@ void readGPS() {
 
 // --- Message Construction ---
 String buildMessage() {
-  // Create a JSON object with double quotes
+  // Create a JSON object with sensor readings
   String message = "{";
   message += "\"Voltage\": " + String(voltage) + ",";
   message += "\"Current\": " + String(current) + ",";
@@ -242,27 +259,28 @@ String buildMessage() {
   message += "\"Direction\": \"" + String(direction) + "\",";
   message += "\"latitude\": " + String(latitude, 3) + ",";
   message += "\"longitude\": " + String(longitude, 3) + ",";
-  message += "\"altitude\": " + String(altura) + ",";
+  message += "\"altitude\": " + String(height) + ","; // Corrected variable name
   message += "\"Speed\": " + String(speed) + ",";
   message += "\"HDOP\": " + String(HDOP);
   message += "}";
   return message;
 }
 
-// --- Sending Data by LoRa by Josh Yauri ---
+// --- Sending Data by LoRa ---
 void sendLoRa(String message) {
-  int longitude = message.length();
-  int sizemax = 50; // Maximum characters per package
-  int start = 0;
+  int messageLength = message.length();
+  int maxCharsPerPacket = 50; // Maximum characters per LoRa packet
   
-  while (start < longitude) {
-    String PartOfMessage = message.substring(start, min(start + sizemax, longitude));
+  // Split message into packets if necessary
+  int start = 0;
+  while (start < messageLength) {
+    String partOfMessage = message.substring(start, min(start + maxCharsPerPacket, messageLength));
     LoRa.beginPacket();
-    LoRa.print(PartOfMessage);
+    LoRa.print(partOfMessage);
     LoRa.endPacket();
-    Serial.println("Message sent by LoRa: " + PartOfMessage);
-    delay(50); // Short break between shipments
-    start += sizemax;
+    Serial.println("Message sent by LoRa: " + partOfMessage);
+    delay(50); // Short delay between transmissions
+    start += maxCharsPerPacket;
   }
-  Serial.println("Message sent message sent in full");
+  Serial.println("Message sent in full");
 }
