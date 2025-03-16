@@ -164,6 +164,16 @@ También, en el código, se indica que pines son los utilizados para conectar co
 
 ## 2. Diseño de los circuitos electrónicos / PCBs
 
+<p align="center">
+  <img src="https://i.imgur.com/Q54q2ht.png" width="200">  
+  <img src="https://i.imgur.com/phjtCcb.png" width="310">
+</p>
+<p align="center">
+  <img src="https://i.imgur.com/EGLJfHs.png" width="200">
+  <img src="https://i.imgur.com/81v1I4O.png" width="225">
+</p>
+
+
 Como parte del equipo Arquitectos Galácticos, mis funciones incluyeron:
 - Matriz Morfológica y Diagrama de Flujo: Elaboración de la matriz morfológica, diagrama de flujo principal y criterios para seleccionar los componentes más convenientes.
 - Investigación de Componentes: Investigación sobre los componentes necesarios para realizar los objetivos planteados y su debida cotización.
