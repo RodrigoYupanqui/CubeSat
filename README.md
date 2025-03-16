@@ -1,6 +1,8 @@
 # CubeSat
 
-La Competencia Nacional de Pequeños Satélites es un evento educativo que integra la ciencia y las ingenierías para desarrollar soluciones tecnológicas innovadoras.
+La Primera Competencia Nacional de Pequeños Satélites en Perú fue un evento educativo organizado por el Instituto de Radioastronomía de la PUCP (INRAS-PUCP), el Vicerrectorado de Investigación (VRI-PUCP) y la Agencia Espacial del Perú – CONIDA. Después de varias fases, la competencia seleccionó a 17 equipos de diversas universidades del país para participar en la fase final y presencial. Los estudiantes debían diseñar, construir y probar un CubeSat, que luego era elevado por un dron a 100 metros de altura antes de ser liberado en caída libre.
+
+<img src="https://i.imgur.com/GWN2etC.png" width="1000">
 
 ## 1. Selección y conexión de los componentes
 Después de una evaluación de precios, disponibilidad y tecnología, obtuvimos los componentes necesarios y adecuados para nuestro objetivo. Indicaré cuales son dichos sensores, al igual que sus especificaciones técnicas.
