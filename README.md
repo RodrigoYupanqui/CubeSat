@@ -133,6 +133,34 @@ La siguiente imagen es un ejemplo de conexión para todos los modulos con los pi
 
 También, en el código, se indica que pines son los utilizados para conectar correctamente. De todas formas, los indicó a continuación:
 
+````cpp
+// From CubeSatTX.ino
+// --- Pin Definitions ---
+
+// Definition of pins for the I2C bus, used by multiple sensors:
+//   - BME280 (pressure, temperature, and humidity)
+//   - MPU6050 (accelerometer and gyroscope)
+//   - INA219 (current sensor)
+//   - QMC5883L (magnetometer)
+#define SDA 21  // Pin for the I2C data line
+#define SCL 22  // Pin for the I2C clock line
+
+// Definition of pins for the GPS module
+#define GPS_RX 16   // Pin to receive data from the GPS module (RX: Receive)
+// Note: This pin should be connected to the TX pin of the GPS module.
+#define GPS_TX 17   // Pin to send data to the GPS module (TX: Transmit)
+// Note: This pin should be connected to the RX pin of the GPS module.
+
+// Definition of pins for the LoRa module
+#define LORA_SS 5   // Slave Select pin for the LoRa module
+#define LORA_RST 14 // Reset pin for the LoRa module
+#define LORA_DIO0 2 // Digital Input/Output pin 0 for the LoRa module (used to indicate events)
+#define LORA_SCK 18 // Clock pin for the LoRa module's SPI bus
+#define LORA_MISO 19 // Master In Slave Out pin for the LoRa module's SPI bus
+#define LORA_MOSI 23 // Master Out Slave In pin for the LoRa module's SPI bus
+````
+
+## 2. Diseño de los circuitos electrónicos / PCBs
 
 Como parte del equipo Arquitectos Galácticos, mis funciones incluyeron:
 - Matriz Morfológica y Diagrama de Flujo: Elaboración de la matriz morfológica, diagrama de flujo principal y criterios para seleccionar los componentes más convenientes.
