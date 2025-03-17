@@ -191,9 +191,9 @@ Piso 2: En este piso, se encuentra el ESP32, el GPS NEO-6M, el SX1278, el INA219
 Piso 3: En este piso, se encuentra el BME280, los 2 servomotores SG90 y el paracaídas que se iba a desplegar al momento de que los servomotores girarán.
 
 <p align="center">
-  <img src="https://i.imgur.com/EGLJfHs.png" width="300">
-  <img src="https://i.imgur.com/81v1I4O.png" width="335">
-  <img src="https://github.com/user-attachments/assets/30411c85-d884-44a9-a2d3-0f8f53125d6f" width="305">
+  <img src="https://i.imgur.com/EGLJfHs.png" width="250">
+  <img src="https://i.imgur.com/81v1I4O.png" width="285">
+  <img src="https://github.com/user-attachments/assets/30411c85-d884-44a9-a2d3-0f8f53125d6f" width="248">
 
 </p>
 
