@@ -183,17 +183,17 @@ Piso 1: En este piso, solo se encontraban las pilas 2A de 1.5V marca Duracell pa
 Piso 2: En este piso, se encuentra el ESP32, el GPS NEO-6M, el SX1278, el INA219, el QMC5883 y el MPU6050.
 
 <p align="center">
-  <img src="https://i.imgur.com/Q54q2ht.png" width="300">
-  <img src="https://i.imgur.com/phjtCcb.png" width="465">
-  <img src="https://github.com/user-attachments/assets/dd8754d2-1192-4456-8db3-03df59ef4a85" width="225">
+  <img src="https://i.imgur.com/Q54q2ht.png" width="250">
+  <img src="https://i.imgur.com/phjtCcb.png" width="385">
+  <img src="https://github.com/user-attachments/assets/dd8754d2-1192-4456-8db3-03df59ef4a85" width="185">
 </p>
 
 Piso 3: En este piso, se encuentra el BME280, los 2 servomotores SG90 y el paracaídas que se iba a desplegar al momento de que los servomotores girarán.
 
 <p align="center">
   <img src="https://i.imgur.com/EGLJfHs.png" width="300">
-  <img src="https://i.imgur.com/81v1I4O.png" width="340">
-  <img src="https://github.com/user-attachments/assets/30411c85-d884-44a9-a2d3-0f8f53125d6f" width="300">
+  <img src="https://i.imgur.com/81v1I4O.png" width="335">
+  <img src="https://github.com/user-attachments/assets/30411c85-d884-44a9-a2d3-0f8f53125d6f" width="305">
 
 </p>
 
